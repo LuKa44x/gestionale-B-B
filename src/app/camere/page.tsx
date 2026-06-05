@@ -45,20 +45,20 @@ export default function CamerePage() {
   useEffect(() => {
     fetchCamere();
   }, []);
-
+  // Funzione per recuperare tutte le camere dal backend
   async function fetchCamere() {
     const res = await fetch("/api/camere");
     const data = await res.json();
     setCamere(data);
     setLoading(false);
   }
-
+  // Funzione per aprire la modale di creazione
   function apriModaleCrea() {
     setCameraSelezionata(null);
     setForm(formVuoto);
     setShowModal(true);
   }
-
+  // Funzione per aprire la modale di modifica con i dati della camera selezionata
   function apriModaleModifica(camera: Camera) {
     setCameraSelezionata(camera);
     setForm({
@@ -72,13 +72,13 @@ export default function CamerePage() {
     });
     setShowModal(true);
   }
-
+  // Funzione per chiudere la modale e resettare lo stato
   function chiudiModale() {
     setShowModal(false);
     setCameraSelezionata(null);
     setForm(formVuoto);
   }
-
+  // Funzione per salvare la camera (creazione o modifica)
   async function salvaCamera() {
     if (cameraSelezionata) {
       await fetch(`/api/camere/${cameraSelezionata.id_camera}`, {
@@ -96,7 +96,7 @@ export default function CamerePage() {
     chiudiModale();
     fetchCamere();
   }
-
+  // Funzione per eliminare una camera
   async function eliminaCamera(id: number) {
     if (!confirm("Sei sicuro di voler eliminare questa camera?")) return;
     await fetch(`/api/camere/${id}`, { method: "DELETE" });
@@ -167,7 +167,7 @@ export default function CamerePage() {
           </tbody>
         </table>
       )}
-
+      {/* Modale di creazione/modifica camera */}
       {showModal && (
         <>
           <div className="modal show d-block" tabIndex={-1}>
