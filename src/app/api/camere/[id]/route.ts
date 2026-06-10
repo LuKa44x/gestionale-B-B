@@ -111,12 +111,17 @@ export async function DELETE(
       );
     }
     return NextResponse.json({ messaggio: "Camera eliminata con successo" });
-  } catch (error) {
+  } catch (error: any) {
+    // Codice 23503 = violazione Foreign Key
+    // sta cercando di eliminare un record che è ancora referenziato da un'altra tabella
+    if (error.code === "23503") {
+      return NextResponse.json(
+        { errore: "Impossibile eliminare: esistono prenotazioni collegate." },
+        { status: 409 },
+      );
+    }
     return NextResponse.json(
-      {
-        errore: "Errore nella eliminazione della camera",
-        dettaglio: String(error),
-      },
+      { errore: "Errore nell'eliminazione", dettaglio: String(error) },
       { status: 500 },
     );
   }

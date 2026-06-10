@@ -99,7 +99,12 @@ export default function CamerePage() {
   // Funzione per eliminare una camera
   async function eliminaCamera(id: number) {
     if (!confirm("Sei sicuro di voler eliminare questa camera?")) return;
-    await fetch(`/api/camere/${id}`, { method: "DELETE" });
+    const res = await fetch(`/api/camere/${id}`, { method: "DELETE" });
+    if (!res.ok) {
+      const err = await res.json();
+      alert(err.errore);
+      return;
+    }
     fetchCamere();
   }
 

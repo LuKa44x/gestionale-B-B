@@ -120,7 +120,12 @@ export default function OspitiPage() {
   // Funzione per eliminare un ospite
   async function eliminaOspite(id: number) {
     if (!confirm("Sei sicuro di voler eliminare questo ospite?")) return;
-    await fetch(`/api/ospiti/${id}`, { method: "DELETE" });
+    const res = await fetch(`/api/ospiti/${id}`, { method: "DELETE" });
+    if (!res.ok) {
+      const err = await res.json();
+      alert(err.errore);
+      return;
+    }
     fetchOspiti(search);
   }
 
