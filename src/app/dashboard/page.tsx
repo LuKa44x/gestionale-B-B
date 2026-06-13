@@ -86,7 +86,7 @@ export default function DashboardPage() {
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
           <h1 className="mb-0">Dashboard</h1>
-          <p className="text-muted mb-0 text-capitalize">{oggi}</p>
+          <p className="text-secondary mb-0 text-capitalize">{oggi}</p>
         </div>
         <button className="btn btn-outline-secondary" onClick={fetchDashboard}>
           ↻ Aggiorna

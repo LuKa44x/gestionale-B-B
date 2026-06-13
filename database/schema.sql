@@ -71,3 +71,17 @@ CREATE TABLE cassa (
   importo             DECIMAL(8,2) NOT NULL,
   metodo_pagamento    VARCHAR(20)  NOT NULL CHECK (metodo_pagamento IN ('Contanti','Carta','Bonifico','PayPal'))
 );
+// aggiunti dopo
+-- Tabella impostazioni generali
+CREATE TABLE impostazioni (
+  chiave VARCHAR(50) PRIMARY KEY,
+  valore VARCHAR(200) NOT NULL
+);
+
+INSERT INTO impostazioni (chiave, valore)
+VALUES ('tassa_soggiorno_per_notte', '2.00');
+
+-- Aggiunta campi tassa di soggiorno a prenotazioni
+ALTER TABLE prenotazioni
+ADD COLUMN tassa_soggiorno DECIMAL(6,2) NOT NULL DEFAULT 0,
+ADD COLUMN ospiti_esenti SMALLINT NOT NULL DEFAULT 0;
