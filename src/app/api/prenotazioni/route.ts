@@ -111,10 +111,11 @@ export async function POST(request: Request) {
     // Crea la prenotazione principale
     const prenotazione = await client.query(
       `INSERT INTO prenotazioni
-        (id_ospite, id_camera, data_checkin, data_checkout,
-         numero_ospiti, stato, canale, note_prenotazione)
-       VALUES ($1,$2,$3,$4,$5,'Confermata',$6,$7)
-       RETURNING *`,
+    (id_ospite, id_camera, data_checkin, data_checkout,
+     numero_ospiti, stato, canale, note_prenotazione,
+     tassa_soggiorno, ospiti_esenti)
+   VALUES ($1,$2,$3,$4,$5,'Confermata',$6,$7,$8,$9)
+   RETURNING *`,
       [
         id_ospite,
         id_camera,
@@ -123,6 +124,8 @@ export async function POST(request: Request) {
         numero_ospiti,
         canale || "Diretto",
         note_prenotazione || null,
+        body.tassa_soggiorno || 0,
+        body.ospiti_esenti || 0,
       ],
     );
 

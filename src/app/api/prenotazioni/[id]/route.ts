@@ -104,10 +104,11 @@ export async function PUT(
     // Aggiorna prenotazione
     const prenotazione = await client.query(
       `UPDATE prenotazioni SET
-        id_ospite=$1, id_camera=$2, data_checkin=$3, data_checkout=$4,
-        numero_ospiti=$5, canale=$6, note_prenotazione=$7
-       WHERE id_prenotazione=$8
-       RETURNING *`,
+    id_ospite=$1, id_camera=$2, data_checkin=$3, data_checkout=$4,
+    numero_ospiti=$5, canale=$6, note_prenotazione=$7,
+    tassa_soggiorno=$8, ospiti_esenti=$9
+   WHERE id_prenotazione=$10
+   RETURNING *`,
       [
         id_ospite,
         id_camera,
@@ -116,6 +117,8 @@ export async function PUT(
         numero_ospiti,
         canale,
         note_prenotazione || null,
+        body.tassa_soggiorno || 0,
+        body.ospiti_esenti || 0,
         id,
       ],
     );

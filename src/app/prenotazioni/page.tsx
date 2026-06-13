@@ -17,6 +17,8 @@ type Prenotazione = {
   camera_nome: string;
   camera_tipologia: string;
   prezzo_base_notte: string;
+  ospiti_esenti: number;
+  tassa_soggiorno: string;
 };
 
 type Ospite = { id_ospite: number; nome: string; cognome: string };
@@ -49,6 +51,8 @@ type FormData = {
   canale: string;
   note_prenotazione: string;
   servizi: ServizioSelezionato[];
+  ospiti_esenti: number;
+  tassa_soggiorno: number;
 };
 
 const formVuoto: FormData = {
@@ -60,6 +64,8 @@ const formVuoto: FormData = {
   canale: "Diretto",
   note_prenotazione: "",
   servizi: [],
+  ospiti_esenti: 0,
+  tassa_soggiorno: 0,
 };
 
 export default function PrenotazioniPage() {
@@ -82,12 +88,23 @@ export default function PrenotazioniPage() {
   const [cameraSelezionata, setCameraSelezionata] = useState<Camera | null>(
     null,
   );
+  // state della tariffa
+  const [tassaPerNotte, setTassaPerNotte] = useState(2.0);
 
   useEffect(() => {
     fetchPrenotazioni();
     fetchOspiti();
     fetchServizi();
+    fetchImpostazioni();
   }, []);
+
+  async function fetchImpostazioni() {
+    const res = await fetch("/api/impostazioni");
+    const data = await res.json();
+    if (data.tassa_soggiorno_per_notte) {
+      setTassaPerNotte(parseFloat(data.tassa_soggiorno_per_notte));
+    }
+  }
 
   // Quando nel modal cambiano le date, ricarica le camere disponibili
   // [cambiamento quando checkin o checkout vengono modificati]
@@ -96,6 +113,15 @@ export default function PrenotazioniPage() {
       fetchCamereDisponibili(form.data_checkin, form.data_checkout);
     }
   }, [form.data_checkin, form.data_checkout, showModal]);
+  // aggiornamento della tassa nel form
+  useEffect(() => {
+    setForm((prev) => ({ ...prev, tassa_soggiorno: calcolaTassa() }));
+  }, [
+    form.numero_ospiti,
+    form.ospiti_esenti,
+    form.data_checkin,
+    form.data_checkout,
+  ]);
 
   // carica la lista prenotazioni con filtro stato o canale
   async function fetchPrenotazioni(stato = filtroStato, canale = filtroCanale) {
@@ -141,6 +167,12 @@ export default function PrenotazioniPage() {
       new Date(form.data_checkin).getTime();
     return Math.ceil(diff / (1000 * 60 * 60 * 24));
   }
+  // calcolatore tassa
+  function calcolaTassa(): number {
+    const notti = calcolaNotti();
+    const ospiti_paganti = Math.max(0, form.numero_ospiti - form.ospiti_esenti);
+    return Math.round(ospiti_paganti * notti * tassaPerNotte * 100) / 100;
+  }
 
   // Calcola il prezzo totale di un servizio in base alla quantità, alla durata del soggiorno e al numero di ospiti se necessario
   function calcolaPrezzoServizio(servizio: Servizio, quantita: number): number {
@@ -159,7 +191,8 @@ export default function PrenotazioniPage() {
       ? parseFloat(cameraSelezionata.prezzo_base_notte) * notti
       : 0;
     const servizi = form.servizi.reduce((sum, s) => sum + s.prezzo_finale, 0);
-    return camera + servizi;
+    const tassa = calcolaTassa();
+    return camera + servizi + tassa;
   }
 
   // Aggiunge un servizio alla lista dei servizi selezionati nel form, no duplicati
@@ -226,6 +259,8 @@ export default function PrenotazioniPage() {
       canale: p.canale,
       note_prenotazione: p.note_prenotazione || "",
       servizi: [],
+      ospiti_esenti: p.ospiti_esenti || 0,
+      tassa_soggiorno: parseFloat(String(p.tassa_soggiorno)) || 0,
     });
     setShowModal(true);
   }
@@ -250,6 +285,7 @@ export default function PrenotazioniPage() {
     }
     const body = {
       ...form,
+      tassa_soggiorno: calcolaTassa(),
       servizi: form.servizi.map((s) => ({
         id_servizio: s.id_servizio,
         quantita: s.quantita,
@@ -577,7 +613,7 @@ export default function PrenotazioniPage() {
                       </div>
 
                       <div className="row">
-                        <div className="col-md-6 mb-3">
+                        <div className="col-md-4 mb-3">
                           <label className="form-label">N. Ospiti *</label>
                           <input
                             type="number"
@@ -592,7 +628,27 @@ export default function PrenotazioniPage() {
                             }
                           />
                         </div>
-                        <div className="col-md-6 mb-3">
+                        <div className="col-md-4 mb-3">
+                          <label className="form-label">
+                            Ospiti esenti tassa
+                          </label>
+                          <input
+                            type="number"
+                            min="0"
+                            className="form-control"
+                            value={form.ospiti_esenti}
+                            onChange={(e) =>
+                              setForm({
+                                ...form,
+                                ospiti_esenti: parseInt(e.target.value) || 0,
+                              })
+                            }
+                          />
+                          <div className="form-text">
+                            Bambini, disabili, ecc.
+                          </div>
+                        </div>
+                        <div className="col-md-4 mb-3">
                           <label className="form-label">Canale</label>
                           <select
                             className="form-select"
@@ -736,6 +792,10 @@ export default function PrenotazioniPage() {
                               <span>€{s.prezzo_finale.toFixed(2)}</span>
                             </div>
                           ))}
+                          <div className="d-flex justify-content-between small">
+                            <span>Tassa di soggiorno:</span>
+                            <strong>€ {calcolaTassa().toFixed(2)}</strong>
+                          </div>
                           <hr className="my-2" />
                           <div className="d-flex justify-content-between fw-bold">
                             <span>Totale stimato:</span>
