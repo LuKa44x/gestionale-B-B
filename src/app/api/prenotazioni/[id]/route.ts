@@ -106,8 +106,9 @@ export async function PUT(
       `UPDATE prenotazioni SET
     id_ospite=$1, id_camera=$2, data_checkin=$3, data_checkout=$4,
     numero_ospiti=$5, canale=$6, note_prenotazione=$7,
-    tassa_soggiorno=$8, ospiti_esenti=$9
-   WHERE id_prenotazione=$10
+    tassa_soggiorno=$8, ospiti_esenti=$9,
+    id_sconto=$10, sconto_applicato=$11
+   WHERE id_prenotazione=$12
    RETURNING *`,
       [
         id_ospite,
@@ -119,6 +120,8 @@ export async function PUT(
         note_prenotazione || null,
         body.tassa_soggiorno || 0,
         body.ospiti_esenti || 0,
+        body.id_sconto || null,
+        body.sconto_applicato || 0,
         id,
       ],
     );

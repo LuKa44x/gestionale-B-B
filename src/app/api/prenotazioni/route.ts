@@ -114,8 +114,8 @@ export async function POST(request: Request) {
       `INSERT INTO prenotazioni
     (id_ospite, id_camera, data_checkin, data_checkout,
      numero_ospiti, stato, canale, note_prenotazione,
-     tassa_soggiorno, ospiti_esenti)
-   VALUES ($1,$2,$3,$4,$5,'Confermata',$6,$7,$8,$9)
+     tassa_soggiorno, ospiti_esenti, id_sconto, sconto_applicato)
+   VALUES ($1,$2,$3,$4,$5,'Confermata',$6,$7,$8,$9,$10,$11)
    RETURNING *`,
       [
         id_ospite,
@@ -127,6 +127,8 @@ export async function POST(request: Request) {
         note_prenotazione || null,
         body.tassa_soggiorno || 0,
         body.ospiti_esenti || 0,
+        body.id_sconto || null,
+        body.sconto_applicato || 0,
       ],
     );
 

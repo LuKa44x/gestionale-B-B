@@ -91,6 +91,14 @@ export default function PrenotazioniPage() {
   );
   // state della tariffa
   const [tassaPerNotte, setTassaPerNotte] = useState(2.0);
+  // state sconti
+  const [codiceSconto, setCodiceSconto] = useState("");
+  const [scontoApplicato, setScontoApplicato] = useState<{
+    id_sconto: number;
+    codice: string;
+    tipo: string;
+    valore: number;
+  } | null>(null);
 
   useEffect(() => {
     fetchPrenotazioni();
@@ -209,7 +217,31 @@ export default function PrenotazioniPage() {
     const camera = prezzoCamera * notti;
     const servizi = form.servizi.reduce((sum, s) => sum + s.prezzo_finale, 0);
     const tassa = calcolaTassa();
-    return camera + servizi + tassa;
+    const subtotale = camera + servizi + tassa;
+
+    if (!scontoApplicato) return subtotale;
+    if (scontoApplicato.tipo === "percentuale") {
+      return subtotale - (subtotale * scontoApplicato.valore) / 100;
+    }
+    return Math.max(0, subtotale - scontoApplicato.valore);
+  }
+
+  function calcolaSconto(): number {
+    const subtotale =
+      calcolaTotale() +
+      (scontoApplicato
+        ? scontoApplicato.tipo === "percentuale"
+          ? (calcolaTotale() / (1 - scontoApplicato.valore / 100)) *
+            (scontoApplicato.valore / 100)
+          : scontoApplicato.valore
+        : 0);
+    if (!scontoApplicato) return 0;
+    if (scontoApplicato.tipo === "percentuale") {
+      return (
+        Math.round(((subtotale * scontoApplicato.valore) / 100) * 100) / 100
+      );
+    }
+    return scontoApplicato.valore;
   }
 
   // Aggiunge un servizio alla lista dei servizi selezionati nel form, no duplicati
@@ -250,6 +282,24 @@ export default function PrenotazioniPage() {
       servizi: form.servizi.filter((s) => s.id_servizio !== id),
     });
   }
+  //Verifica sconto
+  async function verificaSconto() {
+    if (!codiceSconto) return;
+    const res = await fetch(`/api/sconti/verifica?codice=${codiceSconto}`);
+    if (!res.ok) {
+      alert("Codice sconto non valido o scaduto.");
+      setScontoApplicato(null);
+      return;
+    }
+    const sconto = await res.json();
+    setScontoApplicato({
+      id_sconto: sconto.id_sconto,
+      codice: sconto.codice,
+      tipo: sconto.tipo,
+      valore: parseFloat(sconto.valore),
+    });
+    alert(`Sconto "${sconto.codice}" applicato!`);
+  }
   // Apre il modal in modalità creazione, resettando tutti i campi
   function apriModaleCrea() {
     setPrenotazioneSelezionata(null);
@@ -288,6 +338,8 @@ export default function PrenotazioniPage() {
     setForm(formVuoto);
     setCameraSelezionata(null);
     setCamereDisponibili([]);
+    setCodiceSconto("");
+    setScontoApplicato(null);
   }
   // Salva la prenotazione, POST se nuova o PUT se modifica
   async function salvaPrenotazione() {
@@ -303,6 +355,8 @@ export default function PrenotazioniPage() {
     const body = {
       ...form,
       tassa_soggiorno: calcolaTassa(),
+      id_sconto: scontoApplicato?.id_sconto || null,
+      sconto_applicato: calcolaSconto(),
       servizi: form.servizi.map((s) => ({
         id_servizio: s.id_servizio,
         quantita: s.quantita,
@@ -772,7 +826,37 @@ export default function PrenotazioniPage() {
                           ))}
                         </div>
                       )}
-
+                      {/* Codice Sconto */}
+                      <div className="mb-3">
+                        <label className="form-label">Codice Sconto</label>
+                        <div className="input-group">
+                          <input
+                            className="form-control text-uppercase"
+                            placeholder="es. ESTATE2026"
+                            value={codiceSconto}
+                            onChange={(e) => {
+                              setCodiceSconto(e.target.value.toUpperCase());
+                              setScontoApplicato(null);
+                            }}
+                          />
+                          <button
+                            className="btn btn-outline-secondary"
+                            onClick={verificaSconto}
+                          >
+                            Verifica
+                          </button>
+                        </div>
+                        {scontoApplicato && (
+                          <div className="alert alert-success py-1 mt-1 mb-0 small">
+                            ✓ Sconto <strong>{scontoApplicato.codice}</strong>{" "}
+                            applicato —{" "}
+                            {scontoApplicato.tipo === "percentuale"
+                              ? `${scontoApplicato.valore}%`
+                              : `€ ${scontoApplicato.valore.toFixed(2)}`}{" "}
+                            di sconto
+                          </div>
+                        )}
+                      </div>
                       {/* riepilogo totale */}
                       <div className="card border-primary">
                         <div className="card-body p-3">
@@ -815,6 +899,12 @@ export default function PrenotazioniPage() {
                             <span>Tassa di soggiorno:</span>
                             <strong>€ {calcolaTassa().toFixed(2)}</strong>
                           </div>
+                          {scontoApplicato && (
+                            <div className="d-flex justify-content-between small text-success">
+                              <span>Sconto ({scontoApplicato.codice}):</span>
+                              <strong>- € {calcolaSconto().toFixed(2)}</strong>
+                            </div>
+                          )}
                           <hr className="my-2" />
                           <div className="d-flex justify-content-between fw-bold">
                             <span>Totale stimato:</span>

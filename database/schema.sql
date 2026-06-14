@@ -71,7 +71,7 @@ CREATE TABLE cassa (
   importo             DECIMAL(8,2) NOT NULL,
   metodo_pagamento    VARCHAR(20)  NOT NULL CHECK (metodo_pagamento IN ('Contanti','Carta','Bonifico','PayPal'))
 );
-// aggiunti dopo
+-- aggiunti dopo
 -- Tabella impostazioni generali
 CREATE TABLE impostazioni (
   chiave VARCHAR(50) PRIMARY KEY,
@@ -85,3 +85,32 @@ VALUES ('tassa_soggiorno_per_notte', '2.00');
 ALTER TABLE prenotazioni
 ADD COLUMN tassa_soggiorno DECIMAL(6,2) NOT NULL DEFAULT 0,
 ADD COLUMN ospiti_esenti SMALLINT NOT NULL DEFAULT 0;
+
+CREATE TABLE tariffe_stagionali (
+  id_tariffa       SERIAL PRIMARY KEY,
+  id_camera        INT REFERENCES camere(id_camera),
+  nome             VARCHAR(100) NOT NULL,
+  tipo             VARCHAR(20)  NOT NULL CHECK (tipo IN (
+                     'Alta stagione','Bassa stagione',
+                     'Weekend','Festività','Evento'
+                   )),
+  data_inizio      DATE         NOT NULL,
+  data_fine        DATE         NOT NULL,
+  prezzo_per_notte DECIMAL(6,2) NOT NULL
+);
+
+-- Tabella sconti
+CREATE TABLE sconti (
+  id_sconto     SERIAL PRIMARY KEY,
+  codice        VARCHAR(20)  UNIQUE NOT NULL,
+  descrizione   VARCHAR(100),
+  tipo VARCHAR(15) NOT NULL CHECK (tipo IN ('percentuale','fisso')),
+  valore        DECIMAL(6,2) NOT NULL,
+  data_scadenza DATE,
+  attivo        BOOLEAN      NOT NULL DEFAULT TRUE
+);
+
+-- Aggiungi campi a prenotazioni
+ALTER TABLE prenotazioni
+ADD COLUMN id_sconto        INT REFERENCES sconti(id_sconto),
+ADD COLUMN sconto_applicato DECIMAL(6,2) NOT NULL DEFAULT 0;
