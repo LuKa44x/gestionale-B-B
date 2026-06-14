@@ -19,18 +19,19 @@ export async function GET(request: Request) {
     // così riceviamo nome/cognome ospite e nome camera
     // invece dei soli ID numerici
     let query = `
-      SELECT
-        p.*,
-        o.nome        AS ospite_nome,
-        o.cognome     AS ospite_cognome,
-        o.telefono    AS ospite_telefono,
-        c.nome_numero AS camera_nome,
-        c.tipologia   AS camera_tipologia
-      FROM prenotazioni p
-      JOIN ospiti  o ON p.id_ospite = o.id_ospite
-      JOIN camere  c ON p.id_camera = c.id_camera
-      WHERE 1=1
-    `;
+  SELECT
+    p.*,
+    o.nome AS ospite_nome,
+    o.cognome AS ospite_cognome,
+    o.telefono AS ospite_telefono,
+    c.nome_numero AS camera_nome,
+    c.tipologia AS camera_tipologia,
+    c.prezzo_base_notte          -- ← aggiungi questa riga
+  FROM prenotazioni p
+  JOIN ospiti o ON p.id_ospite = o.id_ospite
+  JOIN camere c ON p.id_camera = c.id_camera
+  WHERE 1=1
+`;
 
     // query dinamica: aggiungo condizioni solo se i parametri sono presenti
     const params: (string | number)[] = [];

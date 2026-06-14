@@ -36,18 +36,35 @@ export async function GET(request: Request) {
     // La sovrapposizione esiste quando:
     //   data_checkin della prenotazione esistente < checkout richiesto
     //   AND data_checkout della prenotazione esistente > checkin richiesto
+
+    //  COALESCE qui:
+    //  Prova prima a trovare una tariffa stagionale applicabile. Se non ne trova nessuna, usa prezzo_base_notte.
+    //  La clausola ORDER BY ts.id_camera DESC NULLS LAST dà priorità alle tariffe specifiche
+    //  per camera rispetto a quelle globali
     let query = `
-      SELECT * FROM camere
-      WHERE id_camera NOT IN (
-        SELECT id_camera FROM prenotazioni
-        WHERE stato NOT IN ('Annullata', 'No-show')
-        AND data_checkin < $2
-        AND data_checkout > $1
-        ${escludiPrenotazione ? "AND id_prenotazione != $3" : ""}
-      )
-      AND stato != 'In manutenzione'
-      ORDER BY tipologia, nome_numero
-    `;
+  SELECT
+    c.*,
+    COALESCE(
+      (SELECT ts.prezzo_per_notte
+       FROM tariffe_stagionali ts
+       WHERE (ts.id_camera = c.id_camera OR ts.id_camera IS NULL)
+       AND ts.data_inizio <= $2
+       AND ts.data_fine >= $1
+       ORDER BY ts.id_camera DESC NULLS LAST
+       LIMIT 1),
+      c.prezzo_base_notte
+    ) AS prezzo_effettivo
+  FROM camere c
+  WHERE id_camera NOT IN (
+    SELECT id_camera FROM prenotazioni
+    WHERE stato NOT IN ('Annullata', 'No-show')
+    AND data_checkin < $2
+    AND data_checkout > $1
+    ${escludiPrenotazione ? "AND id_prenotazione != $3" : ""}
+  )
+  AND stato != 'In manutenzione'
+  ORDER BY tipologia, nome_numero
+`;
     // I parametri per la query
     const params = escludiPrenotazione
       ? [checkin, checkout, escludiPrenotazione]

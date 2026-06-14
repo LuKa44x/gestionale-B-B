@@ -27,6 +27,7 @@ type Camera = {
   nome_numero: string;
   tipologia: string;
   prezzo_base_notte: string;
+  prezzo_effettivo?: string;
 };
 type Servizio = {
   id_servizio: number;
@@ -123,6 +124,18 @@ export default function PrenotazioniPage() {
     form.data_checkout,
   ]);
 
+  // Quando cambiano le camere disponibili, aggiorna il prezzo della camera selezionata
+  useEffect(() => {
+    if (form.id_camera && camereDisponibili.length > 0) {
+      const cameraAggiornata = camereDisponibili.find(
+        (c) => c.id_camera === Number(form.id_camera),
+      );
+      if (cameraAggiornata) {
+        setCameraSelezionata(cameraAggiornata);
+      }
+    }
+  }, [camereDisponibili]);
+
   // carica la lista prenotazioni con filtro stato o canale
   async function fetchPrenotazioni(stato = filtroStato, canale = filtroCanale) {
     setLoading(true);
@@ -187,9 +200,13 @@ export default function PrenotazioniPage() {
   // Calcola il totale sommando il costo della camera per le notti e il costo di tutti i servizi extra
   function calcolaTotale(): number {
     const notti = calcolaNotti();
-    const camera = cameraSelezionata
-      ? parseFloat(cameraSelezionata.prezzo_base_notte) * notti
+    const prezzoCamera = cameraSelezionata
+      ? parseFloat(
+          cameraSelezionata.prezzo_effettivo ||
+            cameraSelezionata.prezzo_base_notte,
+        )
       : 0;
+    const camera = prezzoCamera * notti;
     const servizi = form.servizi.reduce((sum, s) => sum + s.prezzo_finale, 0);
     const tassa = calcolaTassa();
     return camera + servizi + tassa;
@@ -769,7 +786,8 @@ export default function PrenotazioniPage() {
                               <span>
                                 Camera ({notti} × €
                                 {parseFloat(
-                                  cameraSelezionata.prezzo_base_notte,
+                                  cameraSelezionata.prezzo_effettivo ||
+                                    cameraSelezionata.prezzo_base_notte,
                                 ).toFixed(2)}
                                 ):
                               </span>
@@ -777,7 +795,8 @@ export default function PrenotazioniPage() {
                                 €
                                 {(
                                   parseFloat(
-                                    cameraSelezionata.prezzo_base_notte,
+                                    cameraSelezionata.prezzo_effettivo ||
+                                      cameraSelezionata.prezzo_base_notte,
                                   ) * notti
                                 ).toFixed(2)}
                               </strong>
