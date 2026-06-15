@@ -565,6 +565,20 @@ export default function PrenotazioniPage() {
                           Annulla
                         </button>
                       )}
+                      {(p.stato === "Check-in effettuato" ||
+                        p.stato === "Check-out effettuato") && (
+                        <button
+                          className="btn btn-sm btn-outline-secondary"
+                          onClick={() =>
+                            window.open(
+                              `/ricevuta/${p.id_prenotazione}`,
+                              "_blank",
+                            )
+                          }
+                        >
+                          🧾 Ricevuta
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
