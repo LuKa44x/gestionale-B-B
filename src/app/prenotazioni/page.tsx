@@ -1,5 +1,6 @@
 "use client";
 
+import { esportaExcel } from "@/lib/export";
 import { useEffect, useState } from "react";
 
 type Prenotazione = {
@@ -433,9 +434,30 @@ export default function PrenotazioniPage() {
     <div className="container-fluid mt-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h1>Gestione Prenotazioni</h1>
-        <button className="btn btn-primary" onClick={apriModaleCrea}>
-          + Nuova Prenotazione
-        </button>
+        <div>
+          <button className="btn btn-primary me-3" onClick={apriModaleCrea}>
+            + Nuova Prenotazione
+          </button>
+          <button
+            className="btn btn-outline-success"
+            onClick={() =>
+              esportaExcel(
+                prenotazioni.map((p) => ({
+                  "N°": p.id_prenotazione,
+                  Ospite: `${p.ospite_cognome} ${p.ospite_nome}`,
+                  Camera: p.camera_nome,
+                  "Check-in": p.data_checkin,
+                  "Check-out": p.data_checkout,
+                  Stato: p.stato,
+                  Canale: p.canale,
+                })),
+                "elenco-prenotazioni",
+              )
+            }
+          >
+            📥 Excel
+          </button>
+        </div>
       </div>
 
       {/* Filtri */}

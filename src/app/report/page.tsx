@@ -1,5 +1,6 @@
 "use client";
 
+import { esportaExcel } from "@/lib/export";
 import { useState } from "react";
 
 type PrenotazioneReport = {
@@ -169,6 +170,88 @@ export default function ReportPage() {
                 {loading ? "Caricamento..." : "Genera Report"}
               </button>
             </div>
+            {prenotazioni.length > 0 && tabAttiva === "prenotazioni" && (
+              <>
+                <div className="col-md-1">
+                  <button
+                    className="btn btn-outline-success w-100"
+                    onClick={() =>
+                      esportaExcel(
+                        prenotazioni.map((p) => ({
+                          "N°": p.id_prenotazione,
+                          Ospite: `${p.ospite_cognome} ${p.ospite_nome}`,
+                          Camera: p.camera_nome,
+                          "Check-in": p.data_checkin,
+                          "Check-out": p.data_checkout,
+                          Notti: p.notti,
+                          Stato: p.stato,
+                          Canale: p.canale,
+                          "Camera €": p.importo_camera,
+                          "Servizi €": p.importo_servizi,
+                          "Totale €": p.totale,
+                        })),
+                        `report-prenotazioni-${da}-${a}`,
+                      )
+                    }
+                  >
+                    📥 Excel
+                  </button>
+                </div>
+                <div className="col-md-1">
+                  <button
+                    className="btn btn-outline-secondary w-100"
+                    onClick={() => window.print()}
+                  >
+                    🖨️ PDF
+                  </button>
+                </div>
+              </>
+            )}
+
+            {kpi && tabAttiva === "occupazione" && (
+              <>
+                <div className="col-md-1">
+                  <button
+                    className="btn btn-outline-success w-100"
+                    onClick={() =>
+                      esportaExcel(
+                        [
+                          {
+                            "Periodo Dal": da,
+                            "Periodo Al": a,
+                            "Tasso Occupazione %": kpi.tasso_occupazione,
+                            "ADR €": kpi.adr,
+                            "RevPAR €": kpi.revpar,
+                            Prenotazioni: kpi.num_prenotazioni,
+                            "Notti Vendute": kpi.notti_vendute,
+                            "Ricavi Camera €": kpi.ricavi_camere,
+                            "Ricavi Servizi €": kpi.ricavi_servizi,
+                            "Ricavi Totali €": kpi.ricavi_totali,
+                          },
+                          ...canali.map((c) => ({
+                            Canale: c.canale,
+                            Prenotazioni: c.num_prenotazioni,
+                            Notti: c.notti,
+                            "Ricavi €": c.ricavi,
+                          })),
+                        ],
+                        `report-occupazione-${da}-${a}`,
+                      )
+                    }
+                  >
+                    📥 Excel
+                  </button>
+                </div>
+                <div className="col-md-1">
+                  <button
+                    className="btn btn-outline-secondary w-100"
+                    onClick={() => window.print()}
+                  >
+                    🖨️ PDF
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>

@@ -10,6 +10,9 @@ const voci = [
   { href: "/ospiti", label: "Ospiti" },
   { href: "/personale", label: "Personale" },
   { href: "/servizi-extra", label: "Servizi Extra" },
+  { href: "/tariffe-stagionali", label: "Tariffe Stagionali" },
+  { href: "/sconti", label: "Sconti" },
+  { href: "/cassa", label: "Cassa" },
   { href: "/report", label: "Report" },
 ];
 
