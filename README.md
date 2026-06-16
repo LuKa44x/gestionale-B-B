@@ -1,36 +1,145 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🏨 Gestionale B&B
 
-## Getting Started
+Gestionale web per Bed & Breakfast sviluppato con **Next.js**, **React**, **TypeScript** e **PostgreSQL**.
 
-First, run the development server:
+🌐 Demo online: https://gestionale-b-b.vercel.app/
+
+---
+
+## ✨ Funzionalità
+
+- Dashboard riepilogativa
+- Gestione camere
+- Gestione ospiti
+- Gestione prenotazioni
+- Check-in e check-out
+- Gestione cassa
+- Servizi extra
+- Sistema sconti
+- Gestione personale
+- Report e statistiche
+- Autenticazione utenti
+
+---
+
+## 🛠️ Tecnologie Utilizzate
+
+### Frontend
+- Next.js 16
+- React 19
+- TypeScript
+- Bootstrap 5
+
+### Backend
+- Next.js Route Handlers
+- REST API
+
+### Database
+- PostgreSQL
+- pg
+
+### Sicurezza
+- bcryptjs
+- JWT (jose)
+
+### Utility
+- xlsx
+
+---
+
+## 📂 Struttura del Progetto
+
+```text
+src/
+├── app/
+│   ├── api/
+│   ├── dashboard/
+│   ├── camere/
+│   ├── ospiti/
+│   ├── prenotazioni/
+│   ├── cassa/
+│   ├── personale/
+│   └── report/
+│
+├── components/
+├── lib/
+└── middleware.ts
+```
+
+---
+
+## 🗄️ Database
+
+Tabelle principali:
+
+- camere
+- ospiti
+- prenotazioni
+- dettagli_prenotazione
+- servizi_extra
+- sconti
+- cassa
+- personale
+- impostazioni
+- tariffe_stagionali
+
+---
+
+## 🚀 Installazione
+
+Clonare il repository:
+
+```bash
+git clone https://github.com/tuo-username/gestionale-bb.git
+cd gestionale-bb
+```
+
+Installare le dipendenze:
+
+```bash
+npm install
+```
+
+Creare il file `.env.local`:
+
+```env
+DATABASE_URL=postgresql://utente:password@localhost:5432/gestionale_bb
+JWT_SECRET=your_secret_key
+```
+
+Avviare il progetto:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🌍 Deploy
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+L'applicazione è distribuita su Vercel:
 
-## Learn More
+👉 https://gestionale-b-b.vercel.app/
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🎯 Obiettivi
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Questo progetto è stato sviluppato per simulare un gestionale reale per strutture ricettive e mettere in pratica:
 
-## Deploy on Vercel
+- Sviluppo Full Stack
+- TypeScript
+- React e Next.js
+- PostgreSQL
+- REST API
+- CRUD avanzate
+- Autenticazione
+- Progettazione database relazionali
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 👨‍💻 Autore
+
+**Luca Vicari**
+
+Progetto sviluppato come esercitazione Full Stack per la gestione completa di un Bed & Breakfast.
