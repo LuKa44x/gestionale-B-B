@@ -1,24 +1,68 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-// voci di menu per la navbar, con href e label
-const voci = [
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/prenotazioni", label: "Prenotazioni" },
-  { href: "/camere", label: "Camere" },
-  { href: "/ospiti", label: "Ospiti" },
-  { href: "/personale", label: "Personale" },
-  { href: "/servizi-extra", label: "Servizi Extra" },
-  { href: "/tariffe-stagionali", label: "Tariffe Stagionali" },
-  { href: "/sconti", label: "Sconti" },
-  { href: "/cassa", label: "Cassa" },
-  { href: "/report", label: "Report" },
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+
+type Utente = {
+  nome: string;
+  cognome: string;
+  ruolo: string;
+};
+
+const vociTutte = [
+  {
+    href: "/dashboard",
+    label: "Dashboard",
+    ruoli: ["Reception", "Manager", "Housekeeping"],
+  },
+  {
+    href: "/prenotazioni",
+    label: "Prenotazioni",
+    ruoli: ["Reception", "Manager"],
+  },
+  {
+    href: "/camere",
+    label: "Camere",
+    ruoli: ["Reception", "Manager", "Housekeeping"],
+  },
+  { href: "/ospiti", label: "Ospiti", ruoli: ["Reception", "Manager"] },
+  { href: "/cassa", label: "Cassa", ruoli: ["Reception", "Manager"] },
+  { href: "/servizi-extra", label: "Servizi Extra", ruoli: ["Manager"] },
+  {
+    href: "/tariffe-stagionali",
+    label: "Tariffe Stagionali",
+    ruoli: ["Manager"],
+  },
+  { href: "/sconti", label: "Sconti", ruoli: ["Manager"] },
+  { href: "/personale", label: "Personale", ruoli: ["Manager"] },
+  { href: "/report", label: "Report", ruoli: ["Manager"] },
 ];
 
 export default function Navbar() {
-  // ottengo il pathname corrente per evidenziare la voce attiva
   const pathname = usePathname();
+  const router = useRouter();
+  const [utente, setUtente] = useState<Utente | null>(null);
+
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => setUtente(data))
+      .catch(() => setUtente(null));
+  }, [pathname]);
+
+  // Non mostrare la navbar sulla pagina di login
+  if (pathname === "/login") return null;
+
+  async function handleLogout() {
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.push("/login");
+    router.refresh();
+  }
+
+  const voci = utente
+    ? vociTutte.filter((v) => v.ruoli.includes(utente.ruolo))
+    : [];
 
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -49,6 +93,21 @@ export default function Navbar() {
               </li>
             ))}
           </ul>
+
+          {utente && (
+            <div className="d-flex align-items-center gap-3">
+              <span className="text-white-50 small">
+                {utente.nome} {utente.cognome}
+                <span className="badge bg-secondary ms-2">{utente.ruolo}</span>
+              </span>
+              <button
+                className="btn btn-outline-light btn-sm"
+                onClick={handleLogout}
+              >
+                Logout
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </nav>
