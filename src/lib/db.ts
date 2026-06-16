@@ -7,12 +7,19 @@ types.setTypeParser(1082, (val: string) => val);
 //"quando ricevi un campo di tipo DATE, non convertirlo — restituiscilo come stringa così com'è".
 //Questo risolve il problema alla radice invece di aggiustarlo campo per campo.
 
-const pool = new Pool({
-  host: process.env.DB_HOST,
-  port: Number(process.env.DB_PORT),
-  database: process.env.DB_NAME,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-});
+const pool = new Pool(
+  process.env.DATABASE_URL
+    ? {
+        connectionString: process.env.DATABASE_URL,
+        ssl: { rejectUnauthorized: false },
+      }
+    : {
+        host: process.env.DB_HOST,
+        port: Number(process.env.DB_PORT),
+        database: process.env.DB_NAME,
+        user: process.env.DB_USER,
+        password: process.env.DB_PASSWORD,
+      },
+);
 
 export default pool;
