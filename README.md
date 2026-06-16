@@ -51,15 +51,34 @@ Gestionale web per Bed & Breakfast sviluppato con **Next.js**, **React**, **Type
 
 ```text
 src/
+│
 ├── app/
 │   ├── api/
+│   │   ├── auth/
+│   │   ├── camere/
+│   │   ├── cassa/
+│   │   ├── dashboard/
+│   │   ├── impostazioni/
+│   │   ├── disponibilita/
+│   │   ├── ospiti/
+│   │   ├── personale/
+│   │   ├── prenotazioni/
+│   │   ├── report/
+│   │   ├── servizi-extra/
+│   │   ├── sconti/
+│   │   └── tariffe-stagionali/
+│   │
 │   ├── dashboard/
 │   ├── camere/
 │   ├── ospiti/
 │   ├── prenotazioni/
 │   ├── cassa/
 │   ├── personale/
-│   └── report/
+│   ├── report/
+│   ├── login/
+│   ├── servizi-extra/
+│   ├── tariffe-stagionali/
+│   └── sconti/
 │
 ├── components/
 ├── lib/
@@ -90,8 +109,8 @@ Tabelle principali:
 Clonare il repository:
 
 ```bash
-git clone https://github.com/tuo-username/gestionale-bb.git
-cd gestionale-bb
+git clone git@github.com:LuKa44x/gestionale-B-B.git
+cd gestionale-B-B
 ```
 
 Installare le dipendenze:
